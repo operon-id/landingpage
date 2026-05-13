@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operon — Build AI Agents. Run Locally. Ship Fast.</title>
+  <meta name="description" content="Operon adalah platform visual untuk membangun dan menjalankan AI Agent di laptop kamu. Tanpa coding. Tanpa cloud. Cepat dan privat." />
+  <link rel="icon" href="LOGO.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #0a0c14;
+      --bg2: #10131e;
+      --bg3: #151929;
+      --surface: #1a1f30;
+      --surface2: #1e2438;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --accent: #4f7cff;
+      --accent2: #7c5cff;
+      --accent3: #00d4aa;
+      --text: #e8eaf0;
+      --text2: #9ba3b8;
+      --text3: #5d6478;
+      --glow: rgba(79, 124, 255, 0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* ─── NOISE OVERLAY ─────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── TYPOGRAPHY ─────────────────────── */
+    h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(79,124,255,0.1);
+      border: 1px solid rgba(79,124,255,0.25);
+      border-radius: 100px;
+      padding: 4px 12px;
+    }
+
+    /* ─── LAYOUT ─────────────────────────── */
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    section { position: relative; z-index: 1; }
+
+    /* ─── NAV ────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(10,12,20,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .nav-logo img {
+      width: 64px !important;
+      height: 64px !important;
+      transform: scale(1.1);
+      transform-origin: left center;
+      display: block;
+      filter: invert(1);
+    }
+
+    .nav-logo span {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      box-shadow: 0 0 24px rgba(79,124,255,0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 36px rgba(79,124,255,0.5);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid var(--border2);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 10px;
+    }
+
+    /* ─── HERO ───────────────────────────── */
+    #hero {
+      padding: 140px 0 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #hero .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-logo-shape {
+      position: absolute;
+      top: -420px;
+      right: -620px;
+      width: min(1512vw, 3300px);
+      aspect-ratio: 1 / 1;
+      opacity: 0.1;
+      filter: invert(1) drop-shadow(0 0 110px rgba(124,92,255,0.35));
+      mix-blend-mode: screen;
+      transform: rotate(-10deg);
+      transform-origin: center;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(79,124,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-glow-2 {
+      position: absolute;
+      top: 100px;
+      left: 20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(124,92,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-label { margin-bottom: 24px; }
+
+    #hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #hero h1 .accent {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text2);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .hero-note {
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    .hero-note span {
+      color: var(--accent3);
+    }
+
+    /* ─── APP SCREENSHOT ─────────────────── */
+    .screenshot-wrap {
+      margin: 60px auto 0;
+      max-width: 1000px;
+      position: relative;
+    }
+
+    .screenshot-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse at 50% 60%, rgba(79,124,255,0.2) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screenshot-frame {
+      position: relative;
+      z-index: 1;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border2);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 40px 80px rgba(0,0,0,0.6),
+        0 0 60px rgba(79,124,255,0.1);
+    }
+
+    .screenshot-titlebar {
+      background: #1a1d26;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red   { background: #ff5f57; }
+    .dot-yellow{ background: #febc2e; }
+    .dot-green { background: #28c840; }
+
+    .titlebar-label {
+      margin-left: 8px;
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    .screenshot-img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3409 / 1851;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* ─── STATS ──────────────────────────── */
+    #stats {
+      padding: 64px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 48px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: var(--text2);
+      font-size: 14px;
+    }
+
+    /* ─── SECTION TITLES ─────────────────── */
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header .label { margin-bottom: 16px; }
+
+    .section-header h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.75));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-header p {
+      color: var(--text2);
+      font-size: 17px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ─── FEATURES ───────────────────────── */
+    #features { padding: 100px 0; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(79,124,255,0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(79,124,255,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(79,124,255,0.1);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon-blue  { background: rgba(79,124,255,0.15); }
+    .feature-icon-purple{ background: rgba(124,92,255,0.15); }
+    .feature-icon-green { background: rgba(0,212,170,0.15);  }
+    .feature-icon-orange{ background: rgba(255,140,50,0.15);  }
+    .feature-icon-pink  { background: rgba(255,80,160,0.15);  }
+    .feature-icon-cyan  { background: rgba(0,180,255,0.15);   }
+
+    .feature-card h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      color: var(--text2);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ─── HOW IT WORKS ───────────────────── */
+    #how { padding: 100px 0; background: var(--bg2); }
+
+    .steps-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .steps-list { display: flex; flex-direction: column; gap: 0; }
+
+    .step-item {
+      display: flex;
+      gap: 20px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .step-item:last-child { border-bottom: none; }
+
+    .step-item.active .step-num { background: var(--accent); color: white; }
+    .step-item.active .step-content h3 { color: var(--text); }
+
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text3);
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .step-content h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: var(--text2);
+      transition: color 0.2s;
+    }
+
+    .step-content p {
+      font-size: 14px;
+      color: var(--text3);
+      line-height: 1.6;
+    }
+
+    .steps-preview {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+    }
+
+    .steps-preview-bar {
+      background: var(--bg3);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .steps-preview-content {
+      padding: 24px;
+    }
+
+    /* Code editor preview */
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text2);
+      overflow: auto;
+    }
+
+    .code-line { display: block; }
+    .code-key   { color: #7c9cff; }
+    .code-str   { color: #7fe0c8; }
+    .code-num   { color: #ffb454; }
+    .code-comment { color: var(--text3); font-style: italic; }
+
+    /* ─── USE CASES ──────────────────────── */
+    #usecases { padding: 100px 0; }
+
+    .usecases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .usecase-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.2s;
+    }
+
+    .usecase-card:hover {
+      border-color: var(--border2);
+      background: var(--surface);
+      transform: translateY(-2px);
+    }
+
+    .usecase-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+
+    .tag-blue   { background: rgba(79,124,255,0.15); color: #7c9cff; }
+    .tag-green  { background: rgba(0,212,170,0.15); color: #00d4aa; }
+    .tag-purple { background: rgba(124,92,255,0.15); color: #a07cff; }
+    .tag-orange { background: rgba(255,140,50,0.15); color: #ff9a40; }
+
+    .usecase-card h3 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .usecase-card p {
+      color: var(--text2);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .usecase-tasks {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .usecase-task {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    .usecase-task::before {
+      content: '→';
+      color: var(--accent3);
+      font-size: 12px;
+    }
+
+    /* ─── LOCAL FIRST ────────────────────── */
+    #local { padding: 100px 0; background: var(--bg2); }
+
+    .local-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .local-text .label { margin-bottom: 20px; }
+
+    .local-text h2 {
+      font-size: clamp(28px, 3.5vw, 44px);
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.75));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .local-text p {
+      color: var(--text2);
+      font-size: 16px;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .local-perks {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .perk {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .perk-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+
+    .perk-text h4 { font-size: 15px; margin-bottom: 4px; }
+    .perk-text p  { font-size: 13px; color: var(--text2); }
+
+    .local-visual {
+      position: relative;
+    }
+
+    .local-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+    }
+
+    .local-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text3);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .speed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .speed-label {
+      font-size: 13px;
+      color: var(--text2);
+      width: 80px;
+    }
+
+    .speed-bar-wrap {
+      flex: 1;
+      margin: 0 16px;
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .speed-bar {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      animation: fillBar 1.5s ease-out forwards;
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+
+    @keyframes fillBar {
+      to { transform: scaleX(1); }
+    }
+
+    .speed-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent3);
+      width: 60px;
+      text-align: right;
+    }
+
+    .local-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.25);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--accent3);
+      font-weight: 600;
+      margin-top: 20px;
+    }
+
+    /* ─── INSTALL ────────────────────────── */
+    #install { padding: 100px 0; }
+
+    .install-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--bg3) 100%);
+      border: 1px solid var(--border2);
+      border-radius: 24px;
+      padding: 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .install-card::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(ellipse, rgba(79,124,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .install-card h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    .install-card p {
+      color: var(--text2);
+      font-size: 17px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .install-platforms {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .platform-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 14px 24px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .platform-btn:hover {
+      border-color: rgba(79,124,255,0.4);
+      background: rgba(79,124,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    .platform-icon { font-size: 20px; }
+
+    .install-note {
+      font-size: 13px;
+      color: var(--text3);
+      position: relative;
+    }
+
+    .install-note a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ─── FOOTER ─────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .footer-logo img {
+      width: 40px; height: 40px;
+      filter: invert(1);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: var(--text3);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text2); }
+
+    .footer-copy {
+      color: var(--text3);
+      font-size: 13px;
+    }
+
+    /* ─── ANIMATIONS ─────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    .animate-fade-up {
+      animation: fadeUp 0.7s ease-out forwards;
+      opacity: 1;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    .float { animation: float 4s ease-in-out infinite; }
+
+    /* ─── SCROLL REVEAL ──────────────────── */
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ─── MOBILE ─────────────────────────── */
+    @media (max-width: 768px) {
+      .hero-logo-shape {
+        top: -70px;
+        right: -70px;
+        width: min(92vw, 520px);
+        opacity: 0.1;
+      }
+
+      #hero {
+        padding: 120px 0 56px;
+      }
+
+      #hero h1 {
+        font-size: clamp(34px, 11vw, 52px);
+      }
+
+      #hero p {
+        font-size: 18px;
+      }
+
+      .nav-inner {
+        gap: 10px;
+      }
+
+      .nav-logo {
+        gap: 8px;
+      }
+
+      .nav-logo img {
+        width: 42px !important;
+        height: 42px !important;
+        transform: none;
+      }
+
+      .nav-logo span {
+        font-size: 15px;
+      }
+
+      .nav-cta .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .screenshot-wrap {
+        margin-top: 34px;
+      }
+
+      .screenshot-titlebar {
+        padding: 9px 12px;
+      }
+
+      .titlebar-label {
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .footer-logo img {
+        width: 36px;
+        height: 36px;
+      }
+
+      .nav-links { display: none; }
+
+      .steps-wrap,
+      .local-wrap {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .install-card { padding: 40px 24px; }
+
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 16px;
+      }
+
+      .nav-logo span {
+        font-size: 14px;
+      }
+
+      .nav-cta .btn {
+        padding: 7px 10px;
+        font-size: 11px;
+      }
+    }
+
+    /* ─── GRADIENT BORDER ────────────────── */
+    .gradient-border {
+      position: relative;
+    }
+
+    .gradient-border::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(79,124,255,0.4), rgba(124,92,255,0.4));
+      z-index: -1;
+    }
+
+    /* ─── MARQUEE ────────────────────────── */
+    .marquee-wrap {
+      overflow: hidden;
+      padding: 32px 0;
+      mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 24px;
+      width: max-content;
+      animation: marquee 30s linear infinite;
+    }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      white-space: nowrap;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ──────────────────────── -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">
+      <img src="LOGO.svg" alt="Operon Logo" />
+      <span>OPERON</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Fitur</a></li>
+      <li><a href="#how">Cara Kerja</a></li>
+      <li><a href="#usecases">Use Cases</a></li>
+      <li><a href="#install">Download</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#install" class="btn btn-primary">
+        ↓ Download Gratis
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── HERO ───────────────────────────── -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+  <img src="LOGO.svg" alt="" class="hero-logo-shape" aria-hidden="true" />
+  <div class="container">
+    <div class="hero-label animate-fade-up">
+      <span class="label">✦ Platform AI Agent — Local First</span>
+    </div>
+
+    <h1 class="animate-fade-up delay-1">
+      Bangun AI Agent kamu<br/>
+      <span class="accent">tanpa coding, tanpa cloud.</span>
+    </h1>
+
+    <p class="animate-fade-up delay-2">
+      Operon adalah editor visual untuk membuat, mengkonfigurasi, dan menjalankan AI Agent khusus bisnismu — langsung dari laptop, cepat seperti kilat, penuh kendali.
+    </p>
+
+    <div class="hero-actions animate-fade-up delay-3">
+      <a href="#install" class="btn btn-primary btn-lg">
+        ▶ Mulai Sekarang — Gratis
+      </a>
+      <a href="#how" class="btn btn-ghost btn-lg">
+        Lihat Demo
+      </a>
+    </div>
+    <p class="hero-note animate-fade-up delay-4">
+      <span>✓ Berjalan 100% di laptop</span> &nbsp;·&nbsp;
+      <span>✓ Pakai model open sesukamu</span> &nbsp;·&nbsp;
+      <span>✓ Milikmu selamanya</span>
+    </p>
+
+    <!-- App Screenshot -->
+    <div class="screenshot-wrap float animate-fade-up delay-5">
+      <div class="screenshot-glow"></div>
+      <div class="screenshot-frame">
+        <div class="screenshot-titlebar">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span class="titlebar-label">Operon Editor — foxlogger</span>
+        </div>
+        <img
+          src="Screenshot.png?v=2"
+          alt="Operon Editor Interface"
+          class="screenshot-img"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MARQUEE ─────────────────────────── -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">🤖 Customer Support Agent</div>
+    <div class="marquee-item">📦 Inventory Tracker</div>
+    <div class="marquee-item">📡 GPS Fleet Monitor</div>
+    <div class="marquee-item">💬 WhatsApp Bot</div>
+    <div class="marquee-item">📊 Sales Assistant</div>
+    <div class="marquee-item">🔧 IT Helpdesk Agent</div>
+    <div class="marquee-item">🏥 Medical Query Agent</div>
+    <div class="marquee-item">📚 Knowledge Base Agent</div>
+    <div class="marquee-item">🛒 E-Commerce Assistant</div>
+    <div class="marquee-item">📈 Analytics Reporter</div>
+    <!-- duplicated for seamless loop -->
+    <div class="marquee-item">🤖 Customer Support Agent</div>
+    <div class="marquee-item">📦 Inventory Tracker</div>
+    <div class="marquee-item">📡 GPS Fleet Monitor</div>
+    <div class="marquee-item">💬 WhatsApp Bot</div>
+    <div class="marquee-item">📊 Sales Assistant</div>
+    <div class="marquee-item">🔧 IT Helpdesk Agent</div>
+    <div class="marquee-item">🏥 Medical Query Agent</div>
+    <div class="marquee-item">📚 Knowledge Base Agent</div>
+    <div class="marquee-item">🛒 E-Commerce Assistant</div>
+    <div class="marquee-item">📈 Analytics Reporter</div>
+  </div>
+</div>
+
+<!-- ─── STATS ──────────────────────────── -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-grid reveal">
+      <div>
+        <span class="stat-number">&lt; 50ms</span>
+        <span class="stat-label">Waktu respons rata-rata agent</span>
+      </div>
+      <div>
+        <span class="stat-number">0 Cloud</span>
+        <span class="stat-label">Data tidak pernah keluar dari laptop</span>
+      </div>
+      <div>
+        <span class="stat-number">5 Menit</span>
+        <span class="stat-label">Dari install hingga agent berjalan</span>
+      </div>
+      <div>
+        <span class="stat-number">∞</span>
+        <span class="stat-label">Agent yang bisa dibuat sekaligus</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHAT IS AI AGENT ─────────────────── -->
+<section id="features" style="padding: 100px 0;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="label">Apa itu AI Agent?</span>
+      <h2>Bukan chatbot biasa —<br/>ini asisten yang bisa <em style="font-style:normal; color: #7c9cff;">bertindak</em></h2>
+      <p>AI Agent adalah program cerdas yang bisa memahami pertanyaan, mengambil data dari sistemmu, lalu memberikan jawaban yang tepat — secara otomatis, 24/7.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon-blue">🧠</div>
+        <h3>Memahami Bahasa Alami</h3>
+        <p>Agent mengerti pertanyaan dalam Bahasa Indonesia maupun Inggris. Pelangganmu cukup ketik seperti chat biasa — agent langsung paham.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon-purple">🔗</div>
+        <h3>Terhubung ke Sistem Kamu</h3>
+        <p>Hubungkan agent ke API, database, atau endpoint bisnismu. Agent bisa mengambil data real-time: stok, status, lokasi, invoice, dan lainnya.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon-green">⚡</div>
+        <h3>Merespons Secara Otomatis</h3>
+        <p>Tidak perlu staff untuk menjawab pertanyaan berulang. Agent bekerja tanpa lelah, konsisten, dan selalu memberikan jawaban akurat.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon-orange">🎨</div>
+        <h3>Editor Visual — Tanpa Kode</h3>
+        <p>Atur kepribadian agent, daftar tugas, dan cara kerjanya melalui antarmuka drag-and-drop yang intuitif. Klik "Lihat Kode" jika ingin masuk lebih dalam.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon-pink">🏷️</div>
+        <h3>White-Label Penuh</h3>
+        <p>Ganti nama, persona, dan identitas agent sesuai brand bisnismu. Agent bisa tampil sebagai "Siti dari TokoBuku" bukan nama generik.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon-cyan">🚀</div>
+        <h3>Deploy Instan</h3>
+        <p>Tekan tombol "Run Agent" dan agent langsung aktif. Bisa diintegrasikan ke website, WhatsApp, aplikasi mobile, atau platform apapun via API.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ──────────────────────── -->
+<section id="how">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="label">Cara Kerja</span>
+      <h2>Dari ide ke agent aktif<br/>dalam 5 menit</h2>
+      <p>Operon menyederhanakan seluruh proses pembuatan AI Agent menjadi langkah-langkah yang mudah diikuti siapapun.</p>
+    </div>
+
+    <div class="steps-wrap reveal">
+      <div class="steps-list" id="stepsList">
+        <div class="step-item active" data-step="0">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Definisikan Identitas Agent</h3>
+            <p>Beri nama, tentukan perusahaan, dan atur kepribadian agent kamu melalui file <code style="color:var(--accent)">system.md</code>. Semudah mengisi form.</p>
+          </div>
+        </div>
+        <div class="step-item" data-step="1">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Tambahkan Tugas Agent</h3>
+            <p>Buat daftar hal yang bisa dilakukan agent: cek status, ambil data, menjawab FAQ, eskalasi ke manusia, dan lainnya.</p>
+          </div>
+        </div>
+        <div class="step-item" data-step="2">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Hubungkan ke Endpoint API</h3>
+            <p>Daftarkan endpoint API bisnismu di <code style="color:var(--accent)">endpoints.json</code>. Agent akan tahu kapan dan bagaimana memanggil data dari sana.</p>
+          </div>
+        </div>
+        <div class="step-item" data-step="3">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h3>Jalankan &amp; Test Langsung</h3>
+            <p>Klik "Run Agent" dan langsung chat dengan agent kamu di terminal. Iterasi cepat tanpa perlu deploy ke server.</p>
+          </div>
+        </div>
+        <div class="step-item" data-step="4">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h3>Integrasikan ke Produkmu</h3>
+            <p>Gunakan REST API yang diekspos Operon untuk menghubungkan agent ke website, WhatsApp, atau aplikasi apapun.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="steps-preview">
+        <div class="steps-preview-bar">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span style="margin-left:8px; font-size:12px; color:var(--text3)">system.md</span>
+        </div>
+        <div class="steps-preview-content">
+          <div class="code-block" id="stepCode">
+<span class="code-comment"># Agent: Foxi — Customer Support Foxlogger</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-key">name:</span> <span class="code-str">"Foxi"</span></span>
+<span class="code-line"><span class="code-key">company:</span> <span class="code-str">"Foxlogger GPS Indonesia"</span></span>
+<span class="code-line"><span class="code-key">language:</span> <span class="code-str">"id"</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-comment"># Tugas-tugas yang bisa dilakukan agent</span>
+<span class="code-line"><span class="code-key">tasks:</span></span>
+<span class="code-line">  - <span class="code-str">Status perangkat (aktif/sinyal/lokasi)</span></span>
+<span class="code-line">  - <span class="code-str">Informasi kendaraan</span></span>
+<span class="code-line">  - <span class="code-str">Info langganan &amp; invoice</span></span>
+<span class="code-line">  - <span class="code-str">Status mesin &amp; baterai</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-comment"># Cara agent bekerja</span>
+<span class="code-line"><span class="code-key">workflow:</span></span>
+<span class="code-line">  1. <span class="code-str">Identifikasi ID pelanggan</span></span>
+<span class="code-line">  2. <span class="code-str">Panggil API lookup_device</span></span>
+<span class="code-line">  3. <span class="code-str">Sajikan data dengan bahasa ramah</span></span>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; color: var(--text3);">✓ Auto-saved · Valid config</span>
+            <button onclick="simulateRun()" style="background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">▶ Run Agent</button>
+          </div>
+
+          <div id="runOutput" style="display:none; margin-top: 12px;">
+            <div style="background: var(--bg); border: 1px solid rgba(0,212,170,0.3); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; color: var(--accent3);">
+              <div>✓ Agent "Foxi" berhasil dijalankan</div>
+              <div>✓ 4 tools terdaftar</div>
+              <div>✓ API endpoint terhubung</div>
+              <div style="margin-top: 8px; color: var(--text2);">Listening on http://localhost:8080 🚀</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── USE CASES ─────────────────────────── -->
+<section id="usecases">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="label">Use Cases</span>
+      <h2>Untuk bisnis apa saja</h2>
+      <p>Dari startup teknologi hingga usaha tradisional — Operon bisa disesuaikan untuk kebutuhan industri apapun.</p>
+    </div>
+
+    <div class="usecases-grid">
+      <div class="usecase-card reveal">
+        <span class="usecase-tag tag-blue">Fleet & Logistik</span>
+        <h3>GPS & Fleet Management</h3>
+        <p>Agent yang tahu status kendaraan, lokasi real-time, dan kondisi mesin — langsung jawab pertanyaan driver atau dispatcher.</p>
+        <div class="usecase-tasks">
+          <span class="usecase-task">Cek lokasi kendaraan via IMEI</span>
+          <span class="usecase-task">Status sinyal & baterai tracker</span>
+          <span class="usecase-task">Info masa aktif simcard</span>
+          <span class="usecase-task">Laporan perjalanan otomatis</span>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal">
+        <span class="usecase-tag tag-green">E-Commerce</span>
+        <h3>Toko Online & Marketplace</h3>
+        <p>Bantu pelanggan cek status order, stok barang, dan info pengiriman tanpa harus manggil CS manusia.</p>
+        <div class="usecase-tasks">
+          <span class="usecase-task">Status pesanan & resi</span>
+          <span class="usecase-task">Cek ketersediaan produk</span>
+          <span class="usecase-task">Proses return & refund</span>
+          <span class="usecase-task">Rekomendasi produk</span>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal">
+        <span class="usecase-tag tag-purple">SaaS & Tech</span>
+        <h3>Aplikasi & Platform Digital</h3>
+        <p>Agent yang bisa menjawab pertanyaan teknis, memandu onboarding, dan menyelesaikan tiket support level 1.</p>
+        <div class="usecase-tasks">
+          <span class="usecase-task">Troubleshooting otomatis</span>
+          <span class="usecase-task">Panduan setup & onboarding</span>
+          <span class="usecase-task">Status layanan & uptime</span>
+          <span class="usecase-task">Reset password & akses</span>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal">
+        <span class="usecase-tag tag-orange">Keuangan & Asuransi</span>
+        <h3>Fintech & Layanan Keuangan</h3>
+        <p>Agent yang bisa menjelaskan produk, membantu cek saldo, dan menjawab pertanyaan transaksi dengan aman.</p>
+        <div class="usecase-tasks">
+          <span class="usecase-task">Info produk & simulasi kredit</span>
+          <span class="usecase-task">Status klaim asuransi</span>
+          <span class="usecase-task">Riwayat transaksi</span>
+          <span class="usecase-task">Jadwal pembayaran cicilan</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LOCAL FIRST ───────────────────────── -->
+<section id="local">
+  <div class="container">
+    <div class="local-wrap reveal">
+      <div class="local-text">
+        <span class="label">Local First · Privacy First</span>
+        <h2>Berjalan penuh<br/>di laptop kamu</h2>
+        <p>Operon dibangun dengan filosofi <em>local-first</em>. Semua data, percakapan, dan konfigurasi agent disimpan di mesinmu sendiri — tidak ada yang dikirim ke server kami.</p>
+
+        <div class="local-perks">
+          <div class="perk">
+            <div class="perk-icon">🔒</div>
+            <div class="perk-text">
+              <h4>Data 100% Privat</h4>
+              <p>Percakapan pelanggan tidak pernah meninggalkan infrastrukturmu sendiri.</p>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon">⚡</div>
+            <div class="perk-text">
+              <h4>Latensi Ultra-Rendah</h4>
+              <p>Tidak ada round-trip ke cloud. Agent merespons dalam milidetik.</p>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon">🌐</div>
+            <div class="perk-text">
+              <h4>Bekerja Offline</h4>
+              <p>Tidak ada internet? Tidak masalah. Agent tetap berjalan normal.</p>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon">💰</div>
+            <div class="perk-text">
+              <h4>Hemat Biaya</h4>
+              <p>Tidak ada biaya subscription cloud atau bayar per-request. Sekali install, pakai selamanya.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="local-visual">
+        <div class="local-card">
+          <div class="local-card-title">⚡ Performance Benchmark</div>
+
+          <div class="speed-item">
+            <span class="speed-label">Startup</span>
+            <div class="speed-bar-wrap">
+              <div class="speed-bar" style="width: 15%;"></div>
+            </div>
+            <span class="speed-value">0.3s</span>
+          </div>
+
+          <div class="speed-item">
+            <span class="speed-label">First Response</span>
+            <div class="speed-bar-wrap">
+              <div class="speed-bar" style="width: 20%;"></div>
+            </div>
+            <span class="speed-value">48ms</span>
+          </div>
+
+          <div class="speed-item">
+            <span class="speed-label">API Lookup</span>
+            <div class="speed-bar-wrap">
+              <div class="speed-bar" style="width: 35%;"></div>
+            </div>
+            <span class="speed-value">120ms</span>
+          </div>
+
+          <div class="speed-item">
+            <span class="speed-label">Memory</span>
+            <div class="speed-bar-wrap">
+              <div class="speed-bar" style="width: 25%;"></div>
+            </div>
+            <span class="speed-value">~80MB</span>
+          </div>
+
+          <div style="border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px;">
+            <div style="font-size: 12px; color: var(--text3); margin-bottom: 12px;">DIBANGUN DENGAN RUST 🦀</div>
+            <div style="font-size: 13px; color: var(--text2);">Binary tunggal, tidak butuh runtime. Ringan, cepat, dan efisien di semua platform.</div>
+          </div>
+
+          <div class="local-badge">
+            ✓ Terverifikasi berjalan di Apple Silicon & Intel
+          </div>
+        </div>
+
+        <!-- floating badge -->
+        <div style="position: absolute; top: -16px; right: -16px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); border-radius: 12px; padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--accent3);">
+          🦀 Built with Rust
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTALL ────────────────────────────── -->
+<section id="install">
+  <div class="container">
+    <div class="install-card reveal">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px;">
+        <img src="LOGO.svg" alt="Operon" style="width: 80px; height: 80px; filter: invert(1); opacity: 0.9;" />
+        <div style="text-align: left;">
+          <div style="font-size: 24px; font-weight: 800; letter-spacing: 0.05em;">OPERON</div>
+          <div style="font-size: 13px; color: var(--text3);">v1.0 · Free & Open Source</div>
+        </div>
+      </div>
+
+      <h2>Install di laptop kamu sekarang</h2>
+      <p>Satu binary. Tidak ada dependency. Langsung jalan dalam hitungan detik.</p>
+
+      <div class="install-platforms">
+        <a href="#" class="platform-btn">
+          <span class="platform-icon">🍎</span>
+          <div style="text-align: left;">
+            <div>macOS</div>
+            <div style="font-size: 11px; color: var(--text3);">Apple Silicon & Intel</div>
+          </div>
+        </a>
+        <a href="#" class="platform-btn">
+          <span class="platform-icon">🪟</span>
+          <div style="text-align: left;">
+            <div>Windows</div>
+            <div style="font-size: 11px; color: var(--text3);">Windows 10 / 11</div>
+          </div>
+        </a>
+        <a href="#" class="platform-btn">
+          <span class="platform-icon">🐧</span>
+          <div style="text-align: left;">
+            <div>Linux</div>
+            <div style="font-size: 11px; color: var(--text3);">x86_64 & ARM64</div>
+          </div>
+        </a>
+        <a href="#" class="platform-btn">
+          <span class="platform-icon">🐳</span>
+          <div style="text-align: left;">
+            <div>Docker</div>
+            <div style="font-size: 11px; color: var(--text3);">Self-hosted</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Terminal install command -->
+      <div style="max-width: 560px; margin: 0 auto 24px; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 16px 20px; font-family: monospace; font-size: 14px; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <span style="color: var(--text3);">$</span>
+        <span style="color: var(--accent3); flex: 1;">curl -fsSL https://operon.id/install.sh | sh</span>
+        <button onclick="copyInstall(this)" style="background: var(--surface2); border: 1px solid var(--border2); color: var(--text2); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit;">Copy</button>
+      </div>
+
+      <p class="install-note">
+        Open source · <a href="#">Lihat di GitHub</a> · Dokumentasi lengkap tersedia
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <img src="LOGO.svg" alt="Operon" />
+        <span>OPERON</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#">Dokumentasi</a></li>
+        <li><a href="#">GitHub</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Kontak</a></li>
+      </ul>
+      <span class="footer-copy">© 2026 Operon.id — Built with ❤️ in Indonesia</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ─── SCROLL REVEAL ──────────────────────
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        entry.target.style.transitionDelay = `${i * 0.05}s`;
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ─── STEPS INTERACTION ──────────────────
+  const stepItems = document.querySelectorAll('.step-item');
+  const stepCodes = [
+    `<span class="code-comment"># system.md — Agent Identity</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-key">name:</span> <span class="code-str">"Foxi"</span></span>
+<span class="code-line"><span class="code-key">company:</span> <span class="code-str">"Foxlogger GPS Indonesia"</span></span>
+<span class="code-line"><span class="code-key">language:</span> <span class="code-str">"id"</span></span>
+<span class="code-line"><span class="code-key">persona:</span> <span class="code-str">"ramah, profesional, membantu"</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-comment"># Agent ini mewakili brand Foxlogger</span>
+<span class="code-comment"># dan hanya menjawab topik GPS tracking</span>`,
+
+    `<span class="code-comment"># Daftar tugas yang dikerjakan agent</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-key">tasks:</span></span>
+<span class="code-line">  - <span class="code-str">"Status perangkat (aktif/sinyal/lokasi)"</span></span>
+<span class="code-line">  - <span class="code-str">"Informasi kendaraan & tracker"</span></span>
+<span class="code-line">  - <span class="code-str">"Info langganan & masa aktif simcard"</span></span>
+<span class="code-line">  - <span class="code-str">"Status mesin (rpm, kecepatan, baterai)"</span></span>
+<span class="code-line">  - <span class="code-str">"Data teknis (IMEI, teknisi pemasang)"</span></span>`,
+
+    `<span class="code-comment"># endpoints.json — API Configuration</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line">{</span>
+<span class="code-line">  <span class="code-key">"lookup_device":</span> {</span>
+<span class="code-line">    <span class="code-key">"url":</span> <span class="code-str">"https://api.foxlogger.com/device"</span>,</span>
+<span class="code-line">    <span class="code-key">"method":</span> <span class="code-str">"GET"</span>,</span>
+<span class="code-line">    <span class="code-key">"auth":</span> <span class="code-str">"bearer"</span>,</span>
+<span class="code-line">    <span class="code-key">"params":</span> [<span class="code-str">"imei"</span>, <span class="code-str">"user_id"</span>]</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span>`,
+
+    `<span class="code-comment"># Terminal — Run Agent</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-str">$ operon run foxlogger</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-key">✓</span> <span class="code-str">Loaded: system.md</span></span>
+<span class="code-line"><span class="code-key">✓</span> <span class="code-str">Loaded: rules.md (12 rules)</span></span>
+<span class="code-line"><span class="code-key">✓</span> <span class="code-str">Loaded: tools.md (4 tools)</span></span>
+<span class="code-line"><span class="code-key">✓</span> <span class="code-str">API endpoints: 3 connected</span></span>
+<span class="code-line">&nbsp;</span>
+<span class="code-key">🚀 Agent Foxi ready at http://localhost:8080</span>`,
+
+    `<span class="code-comment"># REST API — Integrate anywhere</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line"><span class="code-key">POST</span> http://localhost:8080/chat</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-line">{</span>
+<span class="code-line">  <span class="code-key">"session_id":</span> <span class="code-str">"user_123"</span>,</span>
+<span class="code-line">  <span class="code-key">"message":</span> <span class="code-str">"Cek lokasi mobil saya"</span></span>
+<span class="code-line">}</span>
+<span class="code-line">&nbsp;</span>
+<span class="code-comment"># → Agent otomatis panggil API dan jawab</span>`
+  ];
+
+  stepItems.forEach((item, i) => {
+    item.addEventListener('click', () => {
+      stepItems.forEach(s => s.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById('stepCode').innerHTML = stepCodes[i];
+      document.getElementById('runOutput').style.display = 'none';
+    });
+  });
+
+  // ─── SIMULATE RUN ───────────────────────
+  function simulateRun() {
+    const out = document.getElementById('runOutput');
+    out.style.display = 'block';
+    out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ─── COPY INSTALL ───────────────────────
+  function copyInstall(btn) {
+    navigator.clipboard.writeText('curl -fsSL https://operon.id/install.sh | sh').then(() => {
+      btn.textContent = '✓ Copied!';
+      btn.style.color = 'var(--accent3)';
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.style.color = '';
+      }, 2000);
+    });
+  }
+
+  // ─── NAVBAR SCROLL ──────────────────────
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 20) {
+      nav.style.background = 'rgba(10,12,20,0.95)';
+    } else {
+      nav.style.background = 'rgba(10,12,20,0.7)';
+    }
+  });
+
+  // ─── SPEED BAR ANIMATION ────────────────
+  // Trigger when in viewport
+  const speedBars = document.querySelectorAll('.speed-bar');
+  const speedObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'fillBar 1.5s ease-out forwards';
+      }
+    });
+  }, { threshold: 0.5 });
+  speedBars.forEach(bar => speedObserver.observe(bar));
+</script>
+
+</body>
+</html>
